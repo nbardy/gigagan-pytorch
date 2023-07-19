@@ -4,7 +4,14 @@ import webdataset as wds
 from torchvision import transforms
 
 import wandb
-wandb.init(project="gigagan")
+
+
+# Set up the argument parser
+parser = argparse.ArgumentParser(description='GigaGAN Training Script')
+parser.add_argument('--group_id', default='experiment_1', type=str, help='Group ID for wandb logging')
+args = parser.parse_args()
+
+wandb.init(project="gigagan", group=args.group_id)
 
 
 # Load dataset
