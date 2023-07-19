@@ -2,8 +2,10 @@ import torch
 from gigagan_pytorch import GigaGAN, ImageDataset
 import webdataset as wds
 from torchvision import transforms
+import argparse
 
 import wandb
+
 
 
 # Set up the argument parser
