@@ -2,4 +2,3 @@ torch
 lpips==0.1.4
 webdataset==0.2.48
 wandb
-gigagan-pytorch
