@@ -28,7 +28,7 @@ dataset = ImageDataset(
 
 
 gan = GigaGAN(
-    train_upsampler= = True,     # set this to True
+    train_upsampler = True,     # set this to True
     generator = dict(
         style_network = dict(
             dim = 64,
