@@ -17,6 +17,9 @@ import sys
 from argparse import REMAINDER, ArgumentParser
 from pathlib import Path
 
+# import torch xla
+import torch_xla
+import torch_xla.core.xla_model as xm
 import torch_xla.distributed.xla_multiprocessing as xmp
 import torch
 from gigagan_pytorch import GigaGAN, ImageDataset
