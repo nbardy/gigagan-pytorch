@@ -2,17 +2,17 @@
 
 <img src="./gigagan-architecture.png" width="500px"></img>
 
-## GigaGAN - Pytorch (wip)
+## GigaGAN Upscaler  - Large Scale Training Effort
 
-Implementation of <a href="https://arxiv.org/abs/2303.05511v2">GigaGAN</a> <a href="https://mingukkang.github.io/GigaGAN/">(project page)</a>, new SOTA GAN out of Adobe.
+This is a fork from [lucidrains's GigaGAN](https://github.com/lucidrains/lightweight-gan). I am working on the working_branch branch here to develop training scripts for a distributed training run on TPU preview chips. The open source work is sponsored by [Facet](https://facet.ai/) and the compute by [Google](http://google.com)
 
-I will also add a few findings from <a href="https://github.com/lucidrains/lightweight-gan">lightweight gan</a>, for faster convergence (skip layer excitation) and better stability (reconstruction auxiliary loss in discriminator).
+The weights will be open sourced.
 
-It will also contain the code for the 1k - 4k upsamplers, which I find to be the highlight of this paper.
+Training logs are open here:
+https://wandb.ai/nbardy-facet/gigagan?workspace=user-nbardy-facet
 
-Please join <a href="https://discord.gg/xBPBXfcFHd"><img alt="Join us on Discord" src="https://img.shields.io/discord/823813159592001537?color=5865F2&logo=discord&logoColor=white"></a> if you are interested in helping out with the replication with the <a href="https://laion.ai/">LAION</a> community
 
-## Appreciation
+## Appreciation (Come's form the original repo)
 
 - <a href="https://stability.ai/">StabilityAI</a> for the sponsorship, as well as my other sponsors, for affording me the independence to open source artificial intelligence.
 
@@ -22,140 +22,25 @@ Please join <a href="https://discord.gg/xBPBXfcFHd"><img alt="Join us on Discord
 
 - <a href="https://github.com/XavierXiao">Xavier</a> for reviewing the discriminator code and pointing out that the scale invariance was not correctly built!
 
-## Usage
+## TODO
+- [x] Get original training scripts running locally
+- [x] Connect compute cluster with ray 
+- [x] Write a draft of a ray/accelerate cluster training script.
+- [x] Setup on LAION High Res webdataset
+- [ ] Get running on TPU (Currently working here
+- [ ] Train a few base lines
+- [ ] Launch hyper-parameter sweeps on the small model
+- [ ] Scale up to a bigger model with distributed training run.
+    - [ ] Port the draft ray training script over to lucidrain's new training code.
+    - [ ] Check throughput
+- [ ] Reproduce Upscaler with result quality compared to the paper at 256px=>1028px(4X)
+- [ ] Reproduce Upscaler with result quality compared to the paper at 128px>1028px(8X)
 
-Simple unconditional GAN, for starters
-
-```python
-import torch
-
-from gigagan_pytorch import (
-    GigaGAN,
-    ImageDataset
-)
-
-gan = GigaGAN(
-    generator = dict(
-        dim = 64,
-        style_network = dict(
-            dim = 64,
-            depth = 4
-        ),
-        image_size = 256,
-        dim_max = 512,
-        num_skip_layers_excite = 4,
-        unconditional = True
-    ),
-    discriminator = dict(
-        dim = 64,
-        dim_max = 512,
-        image_size = 256,
-        num_skip_layers_excite = 4,
-        unconditional = True
-    )
-).cuda()
-
-# dataset
-
-dataset = ImageDataset(
-    folder = '/path/to/your/data',
-    image_size = 256
-)
-
-dataloader = dataset.get_dataloader(batch_size = 1)
-
-# training the discriminator and generator alternating
-# for 100 steps in this example, batch size 1, gradient accumulated 8 times
-
-gan(
-    dataloader = dataloader,
-    steps = 100,
-    grad_accum_every = 8
-)
-```
-
-For unconditional Unet Upsampler
-
-```python
-import torch
-from gigagan_pytorch import GigaGAN, ImageDataset
-
-gan = GigaGAN(
-    train_upsampler = True,     # set this to True
-    generator = dict(
-        style_network = dict(
-            dim = 64,
-            depth = 4
-        ),
-        dim = 64,
-        image_size = 256,
-        input_image_size = 128,
-        unconditional = True
-    ),
-    discriminator = dict(
-        dim = 64,
-        dim_max = 512,
-        image_size = 256,
-        num_skip_layers_excite = 4,
-        unconditional = True
-    )
-).cuda()
-
-dataset = ImageDataset(
-    folder = '/path/to/your/data',
-    image_size = 256
-)
-
-dataloader = dataset.get_dataloader(batch_size = 1)
-
-# training the discriminator and generator alternating
-# for 100 steps in this example, batch size 1, gradient accumulated 8 times
-
-gan(
-    dataloader = dataloader,
-    steps = 100,
-    grad_accum_every = 8
-)
-```
-
-## Losses (wip)
-
-* `G` - Generator
-* `MSG` - Multiscale Generator
-* `D` - Discriminator
-* `MSD` - Multiscale Discriminator
-* `GP` - Gradient Penalty
-* `SSL` - Auxiliary Reconstruction in Discriminator (from Lightweight GAN)
-
-A healthy run would have `G`, `MSG`, `D`, `MSD` with values hovering between `-10` to `10`, and usually staying pretty constant. If at any time after 1k training steps these values persist at triple digits, that would mean something is wrong.
-
-`GP` and `SSL` should be pushed towards `0`. `GP` can occasionally spike; I like to imagine it as the networks undergoing some phase shift.
-
-## Todo
-
-- [x] make sure it can be trained unconditionally
-- [x] read the relevant papers and knock out all 3 auxiliary losses
-    - [x] matching aware loss
-    - [x] clip loss
-    - [x] vision-aided discriminator loss
-    - [x] add reconstruction losses on arbitrary stages in the discriminator (lightweight gan)
-    - [x] figure out how the random projections are used from projected-gan
-    - [x] vision aided discriminator needs to extract N layers from the vision model in CLIP
-    - [x] figure out whether to discard CLS token and reshape into image dimensions for convolution, or stick with attention and condition with adaptive layernorm - also turn off vision aided gan in unconditional case
-- [x] unet upsampler
-    - [x] add adaptive conv
-    - [x] modify latter stage of unet to also output rgb residuals, and pass the rgb into discriminator. make discriminator agnostic to rgb being passed in
-    - [x] do pixel shuffle upsamples for unet
-- [x] get a code review for the multi-scale inputs and outputs, as the paper was a bit vague
-- [x] add upsampling network architecture
-- [x] make unconditional work for both base generator and upsampler
-- [x] make text conditioned training work for both base and upsampler
-- [x] make recon more efficient by random sampling patches
-
-- [ ] add accelerate
-- [ ] do a review of the auxiliary losses
-- [ ] port over CLI from lightweight|stylegan2-pytorch
-- [ ] hook up laion dataset for text-image
+Stretch Goals
+- [ ] Reproduce a STOTA(For SpeedXQuality open T2I pipeline)
+ - Arbitrary aspect ratios.
+ - [ ]Update architecture to work on patches and make the architecture independant of the patch count so we can scale upt
+ - Training in series with a fast model that does thumbnails or openMUSE or PAELLA.
 
 ## Citations
 
