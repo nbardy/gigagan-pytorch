@@ -23,16 +23,20 @@ import torch_xla.core.xla_model as xm
 import torch_xla.distributed.xla_multiprocessing as xmp
 import torch
 from gigagan_pytorch import GigaGAN, ImageDataset
+import argparse
 import wandb
 
+
 LOG_EVERY = 1
+tpu_on = False
 
+def start_fn(args):
 
-def _mp_fn(index, flags=None):
     """
     Function to be run on each TPU core.
     """
-    tpu_on = False
+    wandb.init(project="gigagan", group=args.group)
+
     if tpu_on:
         device = torch_xla.core.xla_model.xla_device()
     elif torch.backends.mps.is_available():
@@ -90,8 +94,8 @@ def parse_args():
     # Optional arguments for the launch helper
     parser.add_argument("--num_cores", type=int, default=1, help="Number of TPU cores to use (1 or 8).")
 
-    # rest from the training program
-    parser.add_argument("training_script_args", nargs=REMAINDER)
+    parser.add_argument("--group_id", type=str, default=None, help="wandb group id")
+
 
     return parser.parse_args()
 
@@ -102,9 +106,8 @@ def main():
     # Patch sys.argv
     sys.argv = [args.training_script_args] + ["--tpu_num_cores", str(args.num_cores)]
 
-    xmp.spawn(_mp_fn, args=())
+    xmp.spawn(start_fn, args=(args,))
 
 
 if __name__ == "__main__":
-    wandb.init(project="gigagan")
     main()
