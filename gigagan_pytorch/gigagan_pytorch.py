@@ -1974,6 +1974,7 @@ class GigaGAN(nn.Module):
             steps = self.steps.item()
             is_first_step = steps == 1
             should_log = is_first_step or divisible_by(steps, self.log_steps_every)
+            print(f'steps: {steps}, should_log: {should_log}')
 
             apply_gradient_penalty = self.apply_gradient_penalty_every > 0 and divisible_by(steps, self.apply_gradient_penalty_every)
             calc_multiscale_loss =  self.calc_multiscale_loss_every > 0 and divisible_by(steps, self.calc_multiscale_loss_every)
