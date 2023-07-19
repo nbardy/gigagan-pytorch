@@ -1,8 +1,4 @@
-<img src="./gigagan-sample.png" width="500px"></img>
-
-<img src="./gigagan-architecture.png" width="500px"></img>
-
-## GigaGAN Upscaler  - Large Scale Training Effort
+## GigaGAN Upscaler Training 
 
 This is a fork from [lucidrains's GigaGAN](https://github.com/lucidrains/lightweight-gan). I am working on the working_branch branch here to develop training scripts for a distributed training run on TPU preview chips. The open source work is sponsored by [Facet](https://facet.ai/) and the compute by [Google](http://google.com)
 
@@ -11,16 +7,6 @@ The weights will be open sourced.
 Training logs are open here:
 https://wandb.ai/nbardy-facet/gigagan?workspace=user-nbardy-facet
 
-
-## Appreciation (Come's form the original repo)
-
-- <a href="https://stability.ai/">StabilityAI</a> for the sponsorship, as well as my other sponsors, for affording me the independence to open source artificial intelligence.
-
-- <a href="https://huggingface.co/">🤗 Huggingface</a> for their accelerate library
-
-- All the maintainers at <a href="https://github.com/mlfoundations/open_clip">OpenClip</a>, for their SOTA open sourced contrastive learning text-image models
-
-- <a href="https://github.com/XavierXiao">Xavier</a> for reviewing the discriminator code and pointing out that the scale invariance was not correctly built!
 
 ## TODO
 - [x] Get original training scripts running locally
@@ -41,6 +27,17 @@ Stretch Goals
  - Arbitrary aspect ratios.
  - [ ]Update architecture to work on patches and make the architecture independant of the patch count so we can scale upt
  - Training in series with a fast model that does thumbnails or openMUSE or PAELLA.
+
+
+## Appreciation (Come's form the original repo)
+
+- <a href="https://stability.ai/">StabilityAI</a> for the sponsorship, as well as my other sponsors, for affording me the independence to open source artificial intelligence.
+
+- <a href="https://huggingface.co/">🤗 Huggingface</a> for their accelerate library
+
+- All the maintainers at <a href="https://github.com/mlfoundations/open_clip">OpenClip</a>, for their SOTA open sourced contrastive learning text-image models
+
+- <a href="https://github.com/XavierXiao">Xavier</a> for reviewing the discriminator code and pointing out that the scale invariance was not correctly built!
 
 ## Citations
 
