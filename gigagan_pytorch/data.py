@@ -60,6 +60,25 @@ class ImageDataset(Dataset):
 
         self.paths = [p for ext in exts for p in Path(f'{folder}').glob(f'**/*.{ext}')]
 
+        # print debug
+        # print ls of image
+        if len(self.paths) == 0:
+            # print the folder. it's glob results for each ext, for a * ext to see what else
+            # also shell out
+
+            # shell out
+            print(f'ls {folder}')
+            import subprocess
+            result = subprocess.run(['ls', folder], stdout=subprocess.PIPE)
+            print(result.stdout)
+
+            # glob ext
+            for ext in exts:
+                ps = Path(f'{folder}').glob(f'**/*.{ext}')
+                print(f'glob {ext}')
+                print(list(ps))
+
+
         assert len(self.paths) > 0, 'your folder contains no images'
         assert len(self.paths) > 100, 'you need at least 100 images, 10k for research paper, millions for miraculous results (try Laion-5B)'
 
