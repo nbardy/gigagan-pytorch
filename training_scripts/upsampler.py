@@ -22,7 +22,7 @@ else:
     device = torch.device("cpu")
 
 dataset = ImageDataset(
-    folder = '/Users/nicholasbardy/Downloads/Upscale_test',
+    folder = '/Users/nicholasbardy/Upscale_test',
     image_size = 256
 )
 
