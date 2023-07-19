@@ -22,6 +22,7 @@ from gigagan_pytorch.version import __version__
 from gigagan_pytorch.open_clip import OpenClipAdapter
 
 from tqdm import tqdm
+import wandb
 
 # helpers
 
@@ -1717,7 +1718,8 @@ class GigaGAN(nn.Module):
         dl_iter: Iterable,
         grad_accum_every = 1,
         apply_gradient_penalty = False,
-        calc_multiscale_loss = True
+        calc_multiscale_loss = True,
+        should_log = False,
     ):
         total_divergence = 0.
         total_gp_loss = 0.
@@ -1840,6 +1842,14 @@ class GigaGAN(nn.Module):
 
         self.D_opt.step()
 
+        if should_log:
+            wandb.log({
+                "discim_images": [wandb.Image(image) for image in images],
+                "discim_real_images": [wandb.Image(image) for image in real_images],
+                # rgb
+                "discrim_rgbs": [wandb.Image(rgb) for rgb in rgbs],
+            })
+
         return TrainDiscrLosses(total_divergence, total_multiscale_divergence, total_gp_loss, total_aux_loss)
 
     def train_generator_step(
@@ -1847,7 +1857,8 @@ class GigaGAN(nn.Module):
         batch_size = None,
         dl_iter: Optional[Iterable] = None,
         grad_accum_every = 1,
-        calc_multiscale_loss = True
+        calc_multiscale_loss = True,
+        should_log = False
     ):
         total_divergence = 0.
         total_multiscale_divergence = 0. if calc_multiscale_loss else None
@@ -1898,6 +1909,13 @@ class GigaGAN(nn.Module):
                 **maybe_text_kwargs,
                 return_all_rgbs = True
             )
+
+            if should_log:
+                wandb.log({
+                    "discrim_images": [wandb.Image(img) for img in image],
+                    "discrim_rgbs": [wandb.Image(rgb) for rgb in rgbs],
+                    "discrim_real_images": [wandb.Image(img) for img in real_images],
+                })
 
             # discriminator
 
@@ -1955,6 +1973,7 @@ class GigaGAN(nn.Module):
         for _ in tqdm(range(steps), initial = self.steps.item()):
             steps = self.steps.item()
             is_first_step = steps == 1
+            should_log = is_first_step or divisible_by(steps, self.log_steps_every)
 
             apply_gradient_penalty = self.apply_gradient_penalty_every > 0 and divisible_by(steps, self.apply_gradient_penalty_every)
             calc_multiscale_loss =  self.calc_multiscale_loss_every > 0 and divisible_by(steps, self.calc_multiscale_loss_every)
@@ -1963,14 +1982,16 @@ class GigaGAN(nn.Module):
                 dl_iter,
                 grad_accum_every = grad_accum_every,
                 apply_gradient_penalty = apply_gradient_penalty,
-                calc_multiscale_loss = calc_multiscale_loss
+                calc_multiscale_loss = calc_multiscale_loss,
+                should_log = should_log
             )
 
             g_loss, multiscale_g_loss = self.train_generator_step(
                 dl_iter = dl_iter,
                 batch_size = batch_size,
                 grad_accum_every = grad_accum_every,
-                calc_multiscale_loss = calc_multiscale_loss
+                calc_multiscale_loss = calc_multiscale_loss,
+                should_log=should_log
             )
 
             if exists(gp_loss):
@@ -1982,8 +2003,24 @@ class GigaGAN(nn.Module):
             if exists(multiscale_g_loss):
                 last_multiscale_g_loss = multiscale_g_loss
 
-            if is_first_step or divisible_by(steps, self.log_steps_every):
-                self.print(f' G: {g_loss:.2f} | MSG: {last_multiscale_g_loss:.2f} | D: {d_loss:.2f} | MSD: {last_multiscale_d_loss:.2f} | GP: {last_gp_loss:.2f} | SSL: {recon_loss:.2f}')
+            if should_log:
+                log_dict = {
+                    "G": g_loss,
+                    "MSG": last_multiscale_g_loss,
+                    "D": d_loss,
+                    "MSD": last_multiscale_d_loss,
+                    "GP": last_gp_loss,
+                    "SSL": recon_loss
+                }
+
+                # Log with .2f precision
+                log_str = ""
+                for k, v in log_dict.items():
+                    log_str += f"{k}: {v:.2f} | "
+
+                self.print(log_str)
+
+                wandb.log(log_dict)
 
             self.steps += 1
 

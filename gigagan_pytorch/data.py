@@ -50,7 +50,7 @@ class ImageDataset(Dataset):
         self,
         folder,
         image_size,
-        exts = ['jpg', 'jpeg', 'png', 'tiff'],
+        exts = ['jpg', 'jpeg', 'png', 'tiff', 'webp'],
         augment_horizontal_flip = False,
         convert_image_to = None
     ):
