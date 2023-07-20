@@ -1648,11 +1648,19 @@ class GigaGAN(nn.Module):
 
         self.register_buffer('steps', torch.ones(1, dtype = torch.long))
     
-    def backward(self,loss):
+    def backward(self, loss):
         if self.accelerator :
             return self.accelerator.backward(loss)
         else:
             return loss.backward()
+    
+    def step(self, optimizer):
+        if self.accelerator:
+            return self.accelerator.step(optimizer)
+        elif self.xm:
+            return self.xm.optimizer_step(optimizer)
+        else:
+            optimizer.step()
 
     def save(self, path, overwrite = True):
         path = Path(path)
@@ -1847,7 +1855,9 @@ class GigaGAN(nn.Module):
             # backwards
 
             self.backward(total_loss / grad_accum_every)
-        self.D_opt.step()
+
+
+        self.step(self.D_opt)
 
         if should_log:
             wandb.log({
@@ -1953,7 +1963,7 @@ class GigaGAN(nn.Module):
 
                 self.backward(total_loss / grad_accum_every)
 
-        self.G_opt.step()
+        self.step(self.G_opt)
 
         # update exponentially moving averaged generator
 
@@ -1969,7 +1979,9 @@ class GigaGAN(nn.Module):
         steps,
         dataloader: DataLoader,
         accelerator: Accelerator = None,
-        grad_accum_every = 1
+        # xla model
+        xm=None,
+        grad_accum_every = 1,
     ):
         batch_size = dataloader.batch_size
         dl_iter = cycle(dataloader)
@@ -1979,6 +1991,7 @@ class GigaGAN(nn.Module):
         last_multiscale_g_loss = 0.
 
         self.accelerator = accelerator
+        self.xm = xm
 
         for _ in tqdm(range(steps), initial = self.steps.item()):
             steps = self.steps.item()
