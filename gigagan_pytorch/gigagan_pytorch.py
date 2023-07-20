@@ -718,7 +718,7 @@ class Generator(BaseGenerator):
         dim_max = 2048,
         capacity = 16,
         channels = 3,
-        style_network: Optional[Union[StyleNetwork, Dict]] = None,
+        style_network: optional[Union[StyleNetwork, Dict]] = None,
         style_network_dim = None,
         text_encoder: Optional[Union[TextEncoder, Dict]] = None,
         dim_latent = 512,
@@ -1657,6 +1657,7 @@ class GigaGAN(nn.Module):
             return loss.backward()
     
     def step(self, optimizer):
+        print("step", flush=True)
         if self.accelerator:
             return self.accelerator.step(optimizer)
         elif self.xm:
@@ -1870,11 +1871,11 @@ class GigaGAN(nn.Module):
             self.backward(total_loss / grad_accum_every)
 
 
-        print("step opt", flush=True)
+        print("step D opt", flush=True)
 
         self.step(self.D_opt)
 
-        print("step opt done", flush=True)
+        print("step D opt done", flush=True)
 
         if should_log:
             wandb.log({
@@ -1989,7 +1990,7 @@ class GigaGAN(nn.Module):
                 print("multiscale divergence", multiscale_divergence, flush=True)
                 self.backward(total_loss / grad_accum_every)
 
-        print("step opt", flush=True)
+        print("step G opt", flush=True)
         self.step(self.G_opt)
 
         # update exponentially moving averaged generator
