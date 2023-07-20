@@ -32,10 +32,10 @@ https://wandb.ai/nbardy-facet/gigagan?workspace=user-nbardy-facet
 
 Stretch Goals
 - [ ] Reproduce a STOTA(For SpeedXQuality open T2I pipeline)
- - Arbitrary aspect ratios.
- - [ ]Update architecture to work on patches and make the architecture independant of the patch count so we can scale upt
- - Training in series with a fast model that does thumbnails or openMUSE or PAELLA.
-
+ - [ ] Arbitrary aspect ratios.
+   - [ ] Update architecture to work on patches
+   - [ ] Modify architecture to work on arbitrary number of given patches
+ - [ ] Train in series with a fast model that does thumbnails(openMUSE or PAELLA)
 
 ## Appreciation (Come's form the original repo)
 
