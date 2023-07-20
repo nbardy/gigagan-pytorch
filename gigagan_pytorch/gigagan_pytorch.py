@@ -1659,8 +1659,10 @@ class GigaGAN(nn.Module):
     def step(self, optimizer):
         print("step", flush=True)
         if self.accelerator:
+            print("accelerator step", flush=True)
             return self.accelerator.step(optimizer)
         elif self.xm:
+            print("xm optimizer step", flush=True)
             return self.xm.optimizer_step(optimizer)
         else:
             optimizer.step()
