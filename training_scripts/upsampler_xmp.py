@@ -95,7 +95,10 @@ def main(*args):
 
     print("broadcasting")
     gan.to(device)
-    pjrt.broadcast_master_param(gan)
+
+    # Docs say this but runtime says its depericated
+    # pjrt.broadcast_master_param(gan)
+    torch_xla.core.xla_model.broadcast_master_param(gan)
     print("broadcasting done")
 
     dataloader = dataset.get_dataloader(batch_size = BATCH_SIZE)
