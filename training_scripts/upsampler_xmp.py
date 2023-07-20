@@ -121,5 +121,7 @@ if __name__ == "__main__":
 
     group_id = args.group_id
 
+    print("group_id", group_id)
 
-    xmp.spawn(main, args=(group_id))
+
+    xmp.spawn(main, args=(group_id,))
