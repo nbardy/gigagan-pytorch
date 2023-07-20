@@ -1660,7 +1660,7 @@ class GigaGAN(nn.Module):
         if self.accelerator:
             return self.accelerator.step(optimizer)
         elif self.xm:
-            return self.xm.optimizer_step()
+            return self.xm.optimizer_step(optimizer)
         else:
             optimizer.step()
 
