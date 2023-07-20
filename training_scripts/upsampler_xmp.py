@@ -29,6 +29,8 @@ import torch
 import torch_xla
 import torch_xla.core.xla_model as xm
 
+BATCH_SIZE = 4
+
 
 dataset = ImageDataset(
     folder = '/home/nicholasbardy/Upscale_test',
@@ -83,7 +85,7 @@ def main(index):
 
     gan.to(device)
 
-    dataloader = dataset.get_dataloader(batch_size = 1)
+    dataloader = dataset.get_dataloader(batch_size = BATCH_SIZE)
     mp_device_loader = pl.MpDeviceLoader(dataloader, device)
 
     # training the discriminator and generator alternating
@@ -94,6 +96,7 @@ def main(index):
         steps = 100,
         grad_accum_every = 1,
         xm=xm,
+        batch_size=BATCH_SIZE,
     )
 
 

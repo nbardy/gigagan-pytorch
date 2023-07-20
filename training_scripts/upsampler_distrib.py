@@ -82,7 +82,7 @@ def main():
     gan(
         dataloader = dataloader,
         steps = 100,
-        grad_accum_every = 1,
+        grad_accum_every = 8,
         accelerator=accelerator
     )
 
