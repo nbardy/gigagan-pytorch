@@ -1660,7 +1660,7 @@ class GigaGAN(nn.Module):
         if self.accelerator:
             return self.accelerator.step(optimizer)
         elif self.xm:
-            return self.xm.optimizer_step(optimizer)
+            return self.xm.optimizer_step()
         else:
             optimizer.step()
 
@@ -2003,6 +2003,7 @@ class GigaGAN(nn.Module):
         self.accelerator = accelerator
         self.xm = xm
 
+        print("starting train loop...")
         for _ in tqdm(range(steps), initial = self.steps.item()):
             steps = self.steps.item()
             is_first_step = steps == 1
@@ -2012,6 +2013,7 @@ class GigaGAN(nn.Module):
             apply_gradient_penalty = self.apply_gradient_penalty_every > 0 and divisible_by(steps, self.apply_gradient_penalty_every)
             calc_multiscale_loss =  self.calc_multiscale_loss_every > 0 and divisible_by(steps, self.calc_multiscale_loss_every)
 
+            print("train discriminator...")
             d_loss, multiscale_d_loss, gp_loss, recon_loss = self.train_discriminator_step(
                 dl_iter,
                 grad_accum_every = grad_accum_every,
@@ -2020,6 +2022,7 @@ class GigaGAN(nn.Module):
                 should_log = should_log
             )
 
+            print("train generator...")
             g_loss, multiscale_g_loss = self.train_generator_step(
                 dl_iter = dl_iter,
                 batch_size = batch_size,
