@@ -67,6 +67,7 @@ def main(*args):
     device = xm.xla_device()
     dist.init_process_group('xla', init_method='pjrt://')
 
+
     gan = GigaGAN(
         apply_gradient_penalty_every=gradient_penalty_every,
         train_upsampler = True,     # set this to True
@@ -91,7 +92,7 @@ def main(*args):
     )
 
 
-    gan.to(device)
+    pjrt.broadcast_master_param(gan)
 
     dataloader = dataset.get_dataloader(batch_size = BATCH_SIZE)
     mp_device_loader = pl.MpDeviceLoader(dataloader, device)
