@@ -1,13 +1,15 @@
 ## GigaGAN Upscaler Training 
 
-<img width="697" alt="image" src="https://github.com/nbardy/gigagan-pytorch/assets/1278972/0504550c-e81a-4db2-86ee-8421ccca0e4e">
+<img width="340" alt="image" src="https://github.com/nbardy/gigagan-pytorch/assets/1278972/0504550c-e81a-4db2-86ee-8421ccca0e4e">
 
+### Intro
+This is a fork from [lucidrains's GigaGAN](https://github.com/lucidrains/lightweight-gan). I am working here to develop training scripts for a distributed training run of a text conditioned upsampler.
 
-This is a fork from [lucidrains's GigaGAN](https://github.com/lucidrains/lightweight-gan). I am working here to develop training scripts for a distributed training run on TPU preview chips. The open source work is sponsored by [Facet](https://facet.ai/) and the compute by [Google](http://google.com)
+### Notes
+Q:Will the Weights be Open Sourced?
+A:The weights will be open sourced.
 
-I am working on the working_branch branch as default to merge upstream to main
-
-The weights will be open sourced.
+The open source work is sponsored by [Facet](https://facet.ai/) and the compute by [Google](http://google.com)
 
 Training logs are open here:
 https://wandb.ai/nbardy-facet/gigagan?workspace=user-nbardy-facet
@@ -24,9 +26,6 @@ https://wandb.ai/nbardy-facet/gigagan?workspace=user-nbardy-facet
   - [x] Trying XMP
 - [ ] Train a few base lines
 - [ ] Launch hyper-parameter sweeps on the small model
-- [ ] Scale up to a bigger model with distributed training run.
-    - [ ] Port the draft ray training script over to lucidrain's new training code.
-    - [ ] Check throughput
 - [ ] Reproduce Upscaler with result quality compared to the paper at 256px=>1028px(4X)
 - [ ] Reproduce Upscaler with result quality compared to the paper at 128px>1028px(8X)
 
