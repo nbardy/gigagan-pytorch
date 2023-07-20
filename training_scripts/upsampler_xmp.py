@@ -64,8 +64,11 @@ def main(*args):
     print("XMP_INDEX", index)
 
     wandb.init(project="gigagan", group=group_id)
+    print("Geting xla")
     device = xm.xla_device()
+    print("init process group")
     dist.init_process_group('xla', init_method='pjrt://')
+    print("init process group done")
 
 
     gan = GigaGAN(
@@ -92,7 +95,9 @@ def main(*args):
     )
 
 
+    print("broadcasting")
     pjrt.broadcast_master_param(gan)
+    print("broadcasting done")
 
     dataloader = dataset.get_dataloader(batch_size = BATCH_SIZE)
     mp_device_loader = pl.MpDeviceLoader(dataloader, device)
@@ -100,6 +105,7 @@ def main(*args):
     # training the discriminator and generator alternating
     # for 100 steps in this example, batch size 1, gradient accumulated 8 times
 
+    print("makig gan")
     gan(
         dataloader = mp_device_loader,
         steps = 100,
