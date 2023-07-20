@@ -1811,13 +1811,10 @@ class GigaGAN(nn.Module):
         else:
             return loss.backward()
     
-    def step(self, optimizer):
-        print("step", flush=True)
+    def xm_step(self, optimizer):
         if hasattr(self, 'xm'):
             print("xm optimizer step", flush=True)
             return self.xm.optimizer_step(optimizer)
-        else:
-            return self.accelerator.step(optimizer)
 
 
     def save(self, path, overwrite = True):
@@ -2107,7 +2104,8 @@ class GigaGAN(nn.Module):
 
         print("step D opt", flush=True)
 
-        self.step(self.D_opt)
+        self.D_opt.step()
+        self.xm_step(self.D_opt)
 
         print("step D opt done", flush=True)
 
@@ -2190,7 +2188,8 @@ class GigaGAN(nn.Module):
             self.accelerator.backward(total_loss / grad_accum_every)
 
         print("step G opt", flush=True)
-        self.step(self.G_opt)
+        self.G_opt.step()
+        self.xm_step(self.G_opt)
 
         # update exponentially moving averaged generator
 
