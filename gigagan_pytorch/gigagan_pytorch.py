@@ -718,7 +718,7 @@ class Generator(BaseGenerator):
         dim_max = 2048,
         capacity = 16,
         channels = 3,
-        style_network: optional[Union[StyleNetwork, Dict]] = None,
+        style_network: Optional[Union[StyleNetwork, Dict]] = None,
         style_network_dim = None,
         text_encoder: Optional[Union[TextEncoder, Dict]] = None,
         dim_latent = 512,
