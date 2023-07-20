@@ -1,6 +1,5 @@
 import torch
 from gigagan_pytorch import GigaGAN, ImageDataset
-from accelerate import Accelerator
 
 
 import torch_xla.core.xla_model as xm
@@ -25,7 +24,6 @@ import torch_xla.experimental.pjrt as pjrt
 import wandb
 wandb.init(project="gigagan")
 
-accelerator = Accelerator()
 LOG_EVERY = 1
 import torch
 import torch_xla
