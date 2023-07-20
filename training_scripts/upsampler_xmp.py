@@ -94,6 +94,7 @@ def main(*args):
 
 
     print("broadcasting")
+    print("flushing", flush=True)
     gan.to(device)
 
     # runtime warning says its depericated

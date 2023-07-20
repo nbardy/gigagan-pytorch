@@ -2006,6 +2006,7 @@ class GigaGAN(nn.Module):
         print("starting train loop...")
         for _ in tqdm(range(steps), initial = self.steps.item()):
             steps = self.steps.item()
+            print("Looping... steps:" + steps, flush=True)
             is_first_step = steps == 1
             should_log = is_first_step or divisible_by(steps, self.log_steps_every)
             print(f'steps: {steps}, should_log: {should_log}')
