@@ -53,9 +53,11 @@ def read_machine_id() -> int:
 
 gradient_penalty_every = 32
 
-def main(index, group_id):
+def main(*args):
     wandb.init(project="gigagan", group_id=group_id)
     print("Getting xla device")
+    # first arg
+    index = args[0]
     print("XMP_INDEX", index)
     device = xm.xla_device()
     dist.init_process_group('xla', init_method='pjrt://')
