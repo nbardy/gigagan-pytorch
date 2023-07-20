@@ -2014,7 +2014,7 @@ class GigaGAN(nn.Module):
             apply_gradient_penalty = self.apply_gradient_penalty_every > 0 and divisible_by(steps, self.apply_gradient_penalty_every)
             calc_multiscale_loss =  self.calc_multiscale_loss_every > 0 and divisible_by(steps, self.calc_multiscale_loss_every)
 
-            print("train discriminator...")
+            print("train discriminator...", flush=True)
             d_loss, multiscale_d_loss, gp_loss, recon_loss = self.train_discriminator_step(
                 dl_iter,
                 grad_accum_every = grad_accum_every,
@@ -2023,7 +2023,7 @@ class GigaGAN(nn.Module):
                 should_log = should_log
             )
 
-            print("train generator...")
+            print("train generator...", flush=True)
             g_loss, multiscale_g_loss = self.train_generator_step(
                 dl_iter = dl_iter,
                 batch_size = batch_size,
