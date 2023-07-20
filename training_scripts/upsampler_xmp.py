@@ -113,7 +113,7 @@ def main(*args):
     gan(
         dataloader = mp_device_loader,
         steps = 100,
-        grad_accum_every = 8,
+        grad_accum_every = 1,
         xm=xm,
         batch_size=BATCH_SIZE,
     )

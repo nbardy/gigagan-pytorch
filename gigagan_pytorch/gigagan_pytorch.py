@@ -1865,7 +1865,7 @@ class GigaGAN(nn.Module):
 
             # backwards
 
-            print("backward", flush=True)
+            print("backward discrim", flush=True)
 
             self.backward(total_loss / grad_accum_every)
 
@@ -1873,6 +1873,8 @@ class GigaGAN(nn.Module):
         print("step opt", flush=True)
 
         self.step(self.D_opt)
+
+        print("step opt done", flush=True)
 
         if should_log:
             wandb.log({
@@ -1895,10 +1897,16 @@ class GigaGAN(nn.Module):
         total_divergence = 0.
         total_multiscale_divergence = 0. if calc_multiscale_loss else None
 
+        print("train generator step", flush=True)
+
+        print("grad accum every", grad_accum_every, flush=True)
+        print("zero grad", flush=True)
         self.D_opt.zero_grad()
         self.G_opt.zero_grad()
+        print("zero grad done", flush=True)
 
         for _ in range(grad_accum_every):
+            print("gen accum for loop", flush=True)
 
             # what to pass into the generator
             # depends on whether training upsampler or not
@@ -1960,6 +1968,8 @@ class GigaGAN(nn.Module):
 
             # hinge loss
 
+            print("generator hinge loss", flush=True)
+
             divergence = generator_hinge_loss(logits)
 
             total_divergence += divergence
@@ -1976,13 +1986,16 @@ class GigaGAN(nn.Module):
 
                 total_loss = total_loss + multiscale_divergence * self.multiscale_divergence_loss_weight
 
+                print("multiscale divergence", multiscale_divergence, flush=True)
                 self.backward(total_loss / grad_accum_every)
 
+        print("step opt", flush=True)
         self.step(self.G_opt)
 
         # update exponentially moving averaged generator
 
         if self.has_ema_generator:
+            print("update ema", flush=True)
             self.G_ema.update()
 
         return TrainGenLosses(total_divergence, total_multiscale_divergence)
