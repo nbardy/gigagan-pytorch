@@ -7,6 +7,8 @@ from gigagan_pytorch import (
 
 import wandb
 
+BATCH_SIZE = 4
+
 ## Device
 
 tpu_on = False
@@ -55,7 +57,7 @@ dataset = ImageDataset(
     image_size = 256
 )
 
-dataloader = dataset.get_dataloader(batch_size = 1)
+dataloader = dataset.get_dataloader(batch_size = BATCH_SIZE)
 
 # training the discriminator and generator alternating
 # for 100 steps in this example, batch size 1, gradient accumulated 8 times
