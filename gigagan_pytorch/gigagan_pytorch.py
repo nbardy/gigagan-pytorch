@@ -1813,7 +1813,7 @@ class GigaGAN(nn.Module):
     
     def step(self, optimizer):
         print("step", flush=True)
-        if self.xm:
+        if hasattr(self, 'xm'):
             print("xm optimizer step", flush=True)
             return self.xm.optimizer_step(optimizer)
         else:
