@@ -63,7 +63,7 @@ def main(*args):
     print(args[3])
     print("XMP_INDEX", index)
 
-    wandb.init(project="gigagan", group_id=group_id)
+    wandb.init(project="gigagan", group=group_id)
     device = xm.xla_device()
     dist.init_process_group('xla', init_method='pjrt://')
 
