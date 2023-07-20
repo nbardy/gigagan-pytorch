@@ -1581,7 +1581,7 @@ class GigaGAN(nn.Module):
         discr_aux_recon_loss_weight = 0.25,
         multiscale_divergence_loss_weight = 1.,
         calc_multiscale_loss_every = 2,
-        apply_gradient_penalty_every = 4,
+        apply_gradient_penalty_every = 16,
         train_upsampler = False,
         upsampler_replace_rgb_with_input_lowres_image = False,
         log_steps_every = 20,

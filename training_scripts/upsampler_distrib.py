@@ -42,10 +42,10 @@ def read_machine_id() -> int:
 # unique_id = read_machine_id()
 # print(unique_id)
 
-
-
+gradient_penalty_every = 32
 
 gan = GigaGAN(
+    apply_gradient_penalty_every=gradient_penalty_every,
     train_upsampler = True,     # set this to True
     generator = dict(
         style_network = dict(
