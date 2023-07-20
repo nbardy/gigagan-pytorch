@@ -1684,7 +1684,7 @@ class GigaGAN(nn.Module):
                 mixed_precision = mixed_precision_type if amp else 'no',
                 **accelerate_kwargs
             )
-
+        
         # set xla model
         if xm:
             self.xm = xm
