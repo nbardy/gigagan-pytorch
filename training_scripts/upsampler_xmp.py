@@ -65,7 +65,7 @@ def main(*args):
     print("Geting xla")
     device = xm.xla_device()
     print("init process group")
-    dist.init_process_group('xla', init_method='pjrt://')
+    # dist.init_process_group('xla', init_method='pjrt://')
     print("init process group done")
 
 
