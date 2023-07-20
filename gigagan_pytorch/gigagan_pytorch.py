@@ -3,6 +3,8 @@ from pathlib import Path
 from math import log2, sqrt
 from functools import partial
 
+import torch_xla.distributed.parallel_loader as pl
+
 import torch
 import torch.nn.functional as F
 from torch.optim import Adam
@@ -11,7 +13,7 @@ from torch.autograd import grad as torch_grad
 from torch.utils.data import DataLoader
 
 from beartype import beartype
-from beartype.typing import List, Optional, Tuple, Dict, Union, Iterable
+from beartype.typing import List, Optional, Tuple, Dict, Union, Iterable, Any
 
 from einops import rearrange, pack, unpack, repeat, reduce
 from einops.layers.torch import Rearrange, Reduce
@@ -1977,7 +1979,7 @@ class GigaGAN(nn.Module):
         self,
         *,
         steps,
-        dataloader: DataLoader,
+        dataloader: Any = None,
         accelerator: Accelerator = None,
         # xla model
         xm=None,
