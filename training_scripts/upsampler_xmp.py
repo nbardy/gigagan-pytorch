@@ -29,7 +29,7 @@ import torch
 import torch_xla
 import torch_xla.core.xla_model as xm
 
-BATCH_SIZE = 4
+BATCH_SIZE = 1
 
 
 dataset = ImageDataset(
