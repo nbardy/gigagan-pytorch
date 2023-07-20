@@ -28,7 +28,7 @@ dataset = ImageDataset(
     folder = '/Users/nicholasbardy/Downloads/Upscale_test',
     image_size = 256,
     # lambda to do PIL convert RGB
-    convert_image_to="RGB",
+    convert_image_to="RGB"
 )
 
 machine_id_path = "/home/nicholasbardy/machine_id"
@@ -44,43 +44,47 @@ def read_machine_id() -> int:
 
 gradient_penalty_every = 32
 
-gan = GigaGAN(
-    apply_gradient_penalty_every=gradient_penalty_every,
-    train_upsampler = True,     # set this to True
-    generator = dict(
-        style_network = dict(
+def main():
+    gan = GigaGAN(
+        apply_gradient_penalty_every=gradient_penalty_every,
+        train_upsampler = True,     # set this to True
+        generator = dict(
+            style_network = dict(
+                dim = 64,
+                depth = 4
+            ),
             dim = 64,
-            depth = 4
+            image_size = 256,
+            input_image_size = 128,
+            unconditional = True
         ),
-        dim = 64,
-        image_size = 256,
-        input_image_size = 128,
-        unconditional = True
-    ),
-    discriminator = dict(
-        dim = 64,
-        dim_max = 512,
-        image_size = 256,
-        num_skip_layers_excite = 4,
-        unconditional = True
-    ),
-    log_steps_every=LOG_EVERY,
-)
+        discriminator = dict(
+            dim = 64,
+            dim_max = 512,
+            image_size = 256,
+            num_skip_layers_excite = 4,
+            unconditional = True
+        ),
+        log_steps_every=LOG_EVERY,
+    )
 
-gan.to(device)
+    gan.to(device)
 
-dataloader = dataset.get_dataloader(batch_size = 1)
+    dataloader = dataset.get_dataloader(batch_size = 1)
 
-# training the discriminator and generator alternating
-# for 100 steps in this example, batch size 1, gradient accumulated 8 times
+    # training the discriminator and generator alternating
+    # for 100 steps in this example, batch size 1, gradient accumulated 8 times
 
-accelerator = Accelerator()
+    accelerator = Accelerator()
 
-gan, dataloader = accelerator.prepare(gan, dataloader)
+    gan, dataloader = accelerator.prepare(gan, dataloader)
 
-gan(
-    dataloader = dataloader,
-    steps = 100,
-    grad_accum_every = 1,
-    accelerator=accelerator
-)
+    gan(
+        dataloader = dataloader,
+        steps = 100,
+        grad_accum_every = 1,
+        accelerator=accelerator
+    )
+
+if __name__ == "__main__":
+    main()
