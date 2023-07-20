@@ -1980,7 +1980,7 @@ class GigaGAN(nn.Module):
         *,
         steps,
         dataloader: Any = None,
-        batch_sise: int = None,
+        batch_size: int = None,
         accelerator: Accelerator = None,
         # xla model
         xm=None,
@@ -1989,10 +1989,10 @@ class GigaGAN(nn.Module):
 
         # may not exist check safe
         if hasattr(dataloader, 'batch_size'):
+            assert batch_size is None, 'dataloader.batch_size and batch_size cannot both be specified'
             batch_size = dataloader.batch_size
-
-        batch_size = batch_size
-        assert batch_size is None, 'dataloader.batch_size and batch_size cannot both be specified'
+        
+        assert exists(batch_size), 'batch_size must be specified'
 
         dl_iter = cycle(dataloader)
 
