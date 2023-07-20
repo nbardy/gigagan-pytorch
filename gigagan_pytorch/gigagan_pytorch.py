@@ -3,7 +3,6 @@ from pathlib import Path
 from math import log2, sqrt
 from functools import partial
 
-import torch_xla.distributed.parallel_loader as pl
 
 import torch
 import torch.nn.functional as F
@@ -2091,7 +2090,6 @@ class GigaGAN(nn.Module):
                     wandb.log(log_dict)
 
                 self.steps += 1
-            # catch and print exception
             except Exception as e:
                 print("Exception: " + str(e), flush=True)
                 raise e

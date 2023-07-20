@@ -2,7 +2,7 @@ import torch
 from gigagan_pytorch import GigaGAN, ImageDataset
 
 import wandb
-wandb.init(project="gigagan")
+wandb.init(project="gigagan", job_type="simple")
 
 LOG_EVERY = 1
 
@@ -22,7 +22,8 @@ else:
     device = torch.device("cpu")
 
 dataset = ImageDataset(
-    folder = '/home/nicholasbardy/Upscale_test',
+    #folder = '/home/nicholasbardy/Upscale_test',
+    folder = '/Users/nicholasbardy/Downloads/Upscale_test',
     image_size = 256,
     # lambda to do PIL convert RGB
     convert_image_to="RGB",
@@ -36,8 +37,8 @@ def read_machine_id() -> int:
         return int(f.read().strip())
 
 # Example usage
-unique_id = read_machine_id()
-print(unique_id)
+# unique_id = read_machine_id()
+# print(unique_id)
 
 
 
