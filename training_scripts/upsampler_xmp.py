@@ -94,6 +94,7 @@ def main(*args):
 
 
     print("broadcasting")
+    gan.to(device)
     pjrt.broadcast_master_param(gan)
     print("broadcasting done")
 
