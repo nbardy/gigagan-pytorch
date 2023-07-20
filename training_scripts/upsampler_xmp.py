@@ -51,8 +51,9 @@ def read_machine_id() -> int:
 
 gradient_penalty_every = 32
 
-def main():
+def main(index):
     print("Getting xla device")
+    print("XMP_INDEX", index)
     device = xm.xla_device()
     dist.init_process_group('xla', init_method='pjrt://')
 
@@ -97,4 +98,4 @@ def main():
 
 
 if __name__ == "__main__":
-    xmp.spawn(main)
+    xmp.spawn(main, args=())
