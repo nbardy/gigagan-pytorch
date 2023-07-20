@@ -96,9 +96,10 @@ def main(*args):
     print("broadcasting")
     gan.to(device)
 
-    # Docs say this but runtime says its depericated
-    # pjrt.broadcast_master_param(gan)
-    torch_xla.core.xla_model.broadcast_master_param(gan)
+    # runtime warning says its depericated
+    # but it works and the belw doesn't
+    pjrt.broadcast_master_param(gan)
+    # torch_xla.core.xla_model.broadcast_master_param(gan)
     print("broadcasting done")
 
     dataloader = dataset.get_dataloader(batch_size = BATCH_SIZE)
