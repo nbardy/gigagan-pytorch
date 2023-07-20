@@ -1745,7 +1745,9 @@ class GigaGAN(nn.Module):
 
         total_multiscale_divergence = 0. if calc_multiscale_loss else None
 
+        print("zero grad", flush=True)
         self.D_opt.zero_grad()
+        print("zero grad done", flush=True)
 
         for _ in range(grad_accum_every):
 
@@ -1756,6 +1758,8 @@ class GigaGAN(nn.Module):
                 assert isinstance(result, tuple), 'dataset should return a tuple of two items for text conditioned training, (images: Tensor, texts: List[str])'
                 real_images, texts = result
 
+            print("real images", flush=True)
+
             # requires grad for real images, for gradient penalty
 
             real_images = real_images.to(self.device)
@@ -1765,6 +1769,7 @@ class GigaGAN(nn.Module):
 
             # for discriminator training, fit upsampler and image synthesis logic under same function
 
+            print("train upsampler", flush=True)
             if self.train_upsampler:
                 size = self.G.input_image_size
                 lowres_real_images = F.interpolate(real_images, (size, size))
@@ -1785,6 +1790,7 @@ class GigaGAN(nn.Module):
 
             # generator
 
+            print("with torch.no_grad G", flush=True)
             with torch.no_grad():
                 images, rgbs = self.G(
                     **G_kwargs,
@@ -1794,6 +1800,7 @@ class GigaGAN(nn.Module):
 
             # detach output of generator, as training discriminator only
 
+            print("detach", flush=True)
             images.detach_()
 
             for rgb in rgbs:
@@ -1829,6 +1836,8 @@ class GigaGAN(nn.Module):
 
             # figure out gradient penalty if needed
 
+            print("gradient penalty", flush=True)
+
             gp_loss = 0.
 
             if apply_gradient_penalty:
@@ -1856,8 +1865,12 @@ class GigaGAN(nn.Module):
 
             # backwards
 
+            print("backward", flush=True)
+
             self.backward(total_loss / grad_accum_every)
 
+
+        print("step opt", flush=True)
 
         self.step(self.D_opt)
 
