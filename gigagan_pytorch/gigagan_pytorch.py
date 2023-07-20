@@ -1980,12 +1980,19 @@ class GigaGAN(nn.Module):
         *,
         steps,
         dataloader: Any = None,
+        batch_sise: int = None,
         accelerator: Accelerator = None,
         # xla model
         xm=None,
         grad_accum_every = 1,
     ):
-        batch_size = dataloader.batch_size
+
+        if dataloader.batch_size:
+            batch_size = dataloader.batch_size
+
+        batch_size = batch_size
+        assert batch_size is None, 'dataloader.batch_size and batch_size cannot both be specified'
+
         dl_iter = cycle(dataloader)
 
         last_gp_loss = 0.
