@@ -1697,10 +1697,13 @@ class GigaGAN(nn.Module):
             assert is_empty(accelerate_kwargs)
         else:
             kwargs = DistributedDataParallelKwargs(find_unused_parameters = True)
+            precision_type = mixed_precision_type if amp else 'no'
+            print(f'precision type: {precision_type}')
+            print("amp", amp)
 
             self.accelerator = Accelerator(
                 kwargs_handlers = [kwargs],
-                mixed_precision = mixed_precision_type if amp else 'no',
+                mixed_precision = precision_type,
                 **accelerate_kwargs
             )
         

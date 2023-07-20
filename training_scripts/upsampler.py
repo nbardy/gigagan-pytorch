@@ -53,7 +53,7 @@ gan = GigaGAN(
             dim = 64,
             depth = 4
         ),
-        dim_max = generator_dim_max,
+        dim = generator_dim_max,
         image_size = 256,
         input_image_size = 128,
         unconditional = True
