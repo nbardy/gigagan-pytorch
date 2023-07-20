@@ -21,6 +21,8 @@ from ema_pytorch import EMA
 from gigagan_pytorch.version import __version__
 from gigagan_pytorch.open_clip import OpenClipAdapter
 
+from accelerate import Accelerator
+
 from tqdm import tqdm
 import wandb
 
@@ -1645,6 +1647,12 @@ class GigaGAN(nn.Module):
         self.log_steps_every = log_steps_every
 
         self.register_buffer('steps', torch.ones(1, dtype = torch.long))
+    
+    def backward(self,loss):
+        if self.accelerator :
+            return self.accelerator.backward(loss)
+        else:
+            return loss.backward()
 
     def save(self, path, overwrite = True):
         path = Path(path)
@@ -1838,8 +1846,7 @@ class GigaGAN(nn.Module):
 
             # backwards
 
-            (total_loss / grad_accum_every).backward()
-
+            self.backward(total_loss / grad_accum_every)
         self.D_opt.step()
 
         if should_log:
@@ -1944,7 +1951,7 @@ class GigaGAN(nn.Module):
 
                 total_loss = total_loss + multiscale_divergence * self.multiscale_divergence_loss_weight
 
-            (total_loss / grad_accum_every).backward()
+                self.backward(total_loss / grad_accum_every)
 
         self.G_opt.step()
 
@@ -1961,6 +1968,7 @@ class GigaGAN(nn.Module):
         *,
         steps,
         dataloader: DataLoader,
+        accelerator: Accelerator = None,
         grad_accum_every = 1
     ):
         batch_size = dataloader.batch_size
@@ -1969,6 +1977,8 @@ class GigaGAN(nn.Module):
         last_gp_loss = 0.
         last_multiscale_d_loss = 0.
         last_multiscale_g_loss = 0.
+
+        self.accelerator = accelerator
 
         for _ in tqdm(range(steps), initial = self.steps.item()):
             steps = self.steps.item()

@@ -1,113 +1,86 @@
-# Copyright 2020 The HuggingFace Team. All rights reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-import importlib
-import sys
-from argparse import REMAINDER, ArgumentParser
-from pathlib import Path
-
-# import torch xla
-import torch_xla
-import torch_xla.core.xla_model as xm
-import torch_xla.distributed.xla_multiprocessing as xmp
 import torch
 from gigagan_pytorch import GigaGAN, ImageDataset
-import argparse
+from accelerate import Accelerator
+
 import wandb
+wandb.init(project="gigagan")
 
-
+accelerator = Accelerator()
 LOG_EVERY = 1
+
 tpu_on = False
+if tpu_on is True:
+    import torch
+    import torch_xla
+    import torch_xla.core.xla_model as xm
 
-def start_fn(args):
+    device = xm.xla_device()
+elif torch.backends.mps.is_available():
+    device = torch.device("mps")
+elif torch.cuda.is_available():
+    print("Using CUDA")
+    device = torch.device("cuda")
+else:
+    device = torch.device("cpu")
 
-    """
-    Function to be run on each TPU core.
-    """
-    wandb.init(project="gigagan", group=args.group)
+dataset = ImageDataset(
+    # folder = '/home/nicholasbardy/Upscale_test',
+    folder = '/Users/nicholasbardy/Downloads/Upscale_test',
+    image_size = 256,
+    # lambda to do PIL convert RGB
+    convert_image_to="RGB",
+)
 
-    if tpu_on:
-        device = torch_xla.core.xla_model.xla_device()
-    elif torch.backends.mps.is_available():
-        device = torch.device("mps")
-    elif torch.cuda.is_available():
-        print("Using CUDA")
-        device = torch.device("cuda")
-    else:
-        device = torch.device("cpu")
+machine_id_path = "/home/nicholasbardy/machine_id"
 
-    dataset = ImageDataset(
-        folder='/home/nicholasbardy/Upscale_test',
-        image_size=256
-    )
+def read_machine_id() -> int:
+    """Read the unique integer from the given file path."""
+    with open(machine_id_path, 'r') as f:
+        return int(f.read().strip())
 
-    gan = GigaGAN(
-        train_upsampler=True,
-        generator=dict(
-            style_network=dict(
-                dim=64,
-                depth=4
-            ),
-            dim=64,
-            image_size=256,
-            input_image_size=128,
-            unconditional=True
+# Example usage
+# unique_id = read_machine_id()
+# print(unique_id)
+
+
+
+
+gan = GigaGAN(
+    train_upsampler = True,     # set this to True
+    generator = dict(
+        style_network = dict(
+            dim = 64,
+            depth = 4
         ),
-        discriminator=dict(
-            dim=64,
-            dim_max=512,
-            image_size=256,
-            num_skip_layers_excite=4,
-            unconditional=True
-        ),
-        log_steps_every=LOG_EVERY
-    )
+        dim = 64,
+        image_size = 256,
+        input_image_size = 128,
+        unconditional = True
+    ),
+    discriminator = dict(
+        dim = 64,
+        dim_max = 512,
+        image_size = 256,
+        num_skip_layers_excite = 4,
+        unconditional = True
+    ),
+    log_steps_every=LOG_EVERY,
+)
 
-    gan.to(device)
+gan.to(device)
 
-    dataloader = dataset.get_dataloader(batch_size=1)
+dataloader = dataset.get_dataloader(batch_size = 1)
 
-    gan(
-        dataloader=dataloader,
-        steps=100,
-        grad_accum_every=1
-    )
+# training the discriminator and generator alternating
+# for 100 steps in this example, batch size 1, gradient accumulated 8 times
 
+accelerator = Accelerator()
 
-def parse_args():
-    """
-    Helper function parsing the command line options
-    """
-    parser = ArgumentParser(description="PyTorch TPU distributed training launch helper utility")
+gan, dataloader = accelerator.prepare(gan, dataloader)
 
-    # Optional arguments for the launch helper
-    parser.add_argument("--num_cores", type=int, default=1, help="Number of TPU cores to use (1 or 8).")
-
-    parser.add_argument("--group_id", type=str, default=None, help="wandb group id")
-
-
-    return parser.parse_args()
-
-
-def main():
-    args = parse_args()
-
-    # Patch sys.argv
-    sys.argv = [args.training_script_args] + ["--tpu_num_cores", str(args.num_cores)]
-
-    xmp.spawn(start_fn, args=(args,))
-
-
-if __name__ == "__main__":
-    main()
+gan(
+    dataloader = dataloader,
+    steps = 100,
+    grad_accum_every = 1,
+    accelerator=accelerator
+)

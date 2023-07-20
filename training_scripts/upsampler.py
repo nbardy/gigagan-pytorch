@@ -23,8 +23,23 @@ else:
 
 dataset = ImageDataset(
     folder = '/home/nicholasbardy/Upscale_test',
-    image_size = 256
+    image_size = 256,
+    # lambda to do PIL convert RGB
+    convert_image_to="RGB",
 )
+
+machine_id_path = "/home/nicholasbardy/machine_id"
+
+def read_machine_id() -> int:
+    """Read the unique integer from the given file path."""
+    with open(machine_id_path, 'r') as f:
+        return int(f.read().strip())
+
+# Example usage
+unique_id = read_machine_id()
+print(unique_id)
+
+
 
 
 gan = GigaGAN(
