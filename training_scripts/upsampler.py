@@ -6,6 +6,9 @@ wandb.init(project="gigagan", job_type="simple")
 
 LOG_EVERY = 1
 
+discrim_dim_max = 2048 * 10
+generator_dim_max = 2048 * 100
+
 tpu_on = False
 if tpu_on is True:
     import torch
@@ -50,14 +53,13 @@ gan = GigaGAN(
             dim = 64,
             depth = 4
         ),
-        dim = 64,
+        dim_max = generator_dim_max,
         image_size = 256,
         input_image_size = 128,
         unconditional = True
     ),
     discriminator = dict(
-        dim = 64,
-        dim_max = 512,
+        dim_max = discrim_dim_max,
         image_size = 256,
         num_skip_layers_excite = 4,
         unconditional = True
