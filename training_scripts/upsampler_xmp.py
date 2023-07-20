@@ -1,5 +1,6 @@
 import torch
 from gigagan_pytorch import GigaGAN, ImageDataset
+import argparse
 
 
 import torch_xla.core.xla_model as xm
@@ -22,7 +23,6 @@ import torch_xla.experimental.pjrt as pjrt
 
 
 import wandb
-wandb.init(project="gigagan")
 
 LOG_EVERY = 1
 import torch
@@ -53,7 +53,8 @@ def read_machine_id() -> int:
 
 gradient_penalty_every = 32
 
-def main(index):
+def main(index, group_id):
+    wandb.init(project="gigagan", group_id=group_id)
     print("Getting xla device")
     print("XMP_INDEX", index)
     device = xm.xla_device()
@@ -101,4 +102,16 @@ def main(index):
 
 
 if __name__ == "__main__":
-    xmp.spawn(main, args=())
+    # Use argparse to get group_id
+
+    argparser = argparse.ArgumentParser()
+
+    # group_id 
+    argparser.add_argument("--group_id", type=int, required=True)
+
+    args = argparser.parse_args()
+
+    group_id = args.group_id
+
+
+    xmp.spawn(main, args=(group_id))
