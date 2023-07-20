@@ -97,4 +97,4 @@ def main():
 
 
 if __name__ == "__main__":
-    xmp.spawn(main, args=())
+    xmp.spawn(main)
