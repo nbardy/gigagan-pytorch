@@ -58,10 +58,8 @@ def main(*args):
     # first arg
     index = args[0]
     group_id = args[1]
-    print(args[1])
-    print(args[2])
-    print(args[3])
     print("XMP_INDEX", index)
+    print("GROUP_ID", group_id)
 
     wandb.init(project="gigagan", group=group_id)
     print("Geting xla")
