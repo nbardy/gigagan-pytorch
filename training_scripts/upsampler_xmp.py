@@ -107,7 +107,7 @@ if __name__ == "__main__":
     argparser = argparse.ArgumentParser()
 
     # group_id 
-    argparser.add_argument("--group_id", type=int, required=True)
+    argparser.add_argument("--group_id", type=str, required=True)
 
     args = argparser.parse_args()
 
