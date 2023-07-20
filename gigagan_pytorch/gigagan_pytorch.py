@@ -1987,7 +1987,8 @@ class GigaGAN(nn.Module):
         grad_accum_every = 1,
     ):
 
-        if dataloader.batch_size:
+        # may not exist check safe
+        if hasattr(dataloader, 'batch_size'):
             batch_size = dataloader.batch_size
 
         batch_size = batch_size
