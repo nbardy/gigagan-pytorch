@@ -2034,61 +2034,67 @@ class GigaGAN(nn.Module):
 
         print("starting train loop...")
         for _ in tqdm(range(steps), initial = self.steps.item()):
-            steps = self.steps.item()
-            print("Looping... steps:" + str(steps), flush=True)
-            is_first_step = steps == 1
-            should_log = is_first_step or divisible_by(steps, self.log_steps_every)
-            print(f'steps: {steps}, should_log: {should_log}')
+            try:
+                steps = self.steps.item()
+                print("Looping... steps:" + str(steps), flush=True)
+                is_first_step = steps == 1
+                should_log = is_first_step or divisible_by(steps, self.log_steps_every)
+                print(f'steps: {steps}, should_log: {should_log}')
 
-            apply_gradient_penalty = self.apply_gradient_penalty_every > 0 and divisible_by(steps, self.apply_gradient_penalty_every)
-            calc_multiscale_loss =  self.calc_multiscale_loss_every > 0 and divisible_by(steps, self.calc_multiscale_loss_every)
+                apply_gradient_penalty = self.apply_gradient_penalty_every > 0 and divisible_by(steps, self.apply_gradient_penalty_every)
+                calc_multiscale_loss =  self.calc_multiscale_loss_every > 0 and divisible_by(steps, self.calc_multiscale_loss_every)
 
-            print("train discriminator...", flush=True)
-            d_loss, multiscale_d_loss, gp_loss, recon_loss = self.train_discriminator_step(
-                dl_iter,
-                grad_accum_every = grad_accum_every,
-                apply_gradient_penalty = apply_gradient_penalty,
-                calc_multiscale_loss = calc_multiscale_loss,
-                should_log = should_log
-            )
+                print("train discriminator...", flush=True)
+                d_loss, multiscale_d_loss, gp_loss, recon_loss = self.train_discriminator_step(
+                    dl_iter,
+                    grad_accum_every = grad_accum_every,
+                    apply_gradient_penalty = apply_gradient_penalty,
+                    calc_multiscale_loss = calc_multiscale_loss,
+                    should_log = should_log
+                )
 
-            print("train generator...", flush=True)
-            g_loss, multiscale_g_loss = self.train_generator_step(
-                dl_iter = dl_iter,
-                batch_size = batch_size,
-                grad_accum_every = grad_accum_every,
-                calc_multiscale_loss = calc_multiscale_loss,
-                should_log=should_log
-            )
+                print("train generator...", flush=True)
+                g_loss, multiscale_g_loss = self.train_generator_step(
+                    dl_iter = dl_iter,
+                    batch_size = batch_size,
+                    grad_accum_every = grad_accum_every,
+                    calc_multiscale_loss = calc_multiscale_loss,
+                    should_log=should_log
+                )
 
-            if exists(gp_loss):
-                last_gp_loss = gp_loss
+                if exists(gp_loss):
+                    last_gp_loss = gp_loss
 
-            if exists(multiscale_d_loss):
-                last_multiscale_d_loss = multiscale_d_loss
+                if exists(multiscale_d_loss):
+                    last_multiscale_d_loss = multiscale_d_loss
 
-            if exists(multiscale_g_loss):
-                last_multiscale_g_loss = multiscale_g_loss
+                if exists(multiscale_g_loss):
+                    last_multiscale_g_loss = multiscale_g_loss
 
-            if should_log:
-                log_dict = {
-                    "G": g_loss,
-                    "MSG": last_multiscale_g_loss,
-                    "D": d_loss,
-                    "MSD": last_multiscale_d_loss,
-                    "GP": last_gp_loss,
-                    "SSL": recon_loss
-                }
+                if should_log:
+                    log_dict = {
+                        "G": g_loss,
+                        "MSG": last_multiscale_g_loss,
+                        "D": d_loss,
+                        "MSD": last_multiscale_d_loss,
+                        "GP": last_gp_loss,
+                        "SSL": recon_loss
+                    }
 
-                # Log with .2f precision
-                log_str = ""
-                for k, v in log_dict.items():
-                    log_str += f"{k}: {v:.2f} | "
+                    # Log with .2f precision
+                    log_str = ""
+                    for k, v in log_dict.items():
+                        log_str += f"{k}: {v:.2f} | "
 
-                self.print(log_str)
+                    self.print(log_str)
 
-                wandb.log(log_dict)
+                    wandb.log(log_dict)
 
-            self.steps += 1
+                self.steps += 1
+            # catch and print exception
+            except Exception as e:
+                print("Exception: " + str(e), flush=True)
+                raise e
+
 
         self.print(f'complete {steps} training steps')

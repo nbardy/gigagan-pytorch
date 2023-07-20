@@ -64,10 +64,12 @@ def main(*args):
     wandb.init(project="gigagan", group=group_id)
     print("Geting xla")
     device = xm.xla_device()
+    print("device", device)
     print("init process group")
     # dist.init_process_group('xla', init_method='pjrt://')
     print("init process group done")
-
+    print("supported devices:", xm.get_xla_supported_devices())
+    print("hardware:", xm.xla_device_hw(device))
 
     gan = GigaGAN(
         apply_gradient_penalty_every=gradient_penalty_every,
